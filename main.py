@@ -4,6 +4,7 @@ from sqlalchemy.sql.expression import column
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Resource, Api
 from accounts import *
+from mail import sendEmail
 
 # -----------^IMPORTS^---------------
 
