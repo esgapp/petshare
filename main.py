@@ -3,7 +3,6 @@ from flask import Flask, flash, render_template, redirect, request, url_for, jso
 from sqlalchemy.sql.expression import column
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Resource, Api
-from accounts import *
 from mail import sendEmail
 
 # -----------^IMPORTS^---------------
@@ -47,22 +46,22 @@ db.create_all()
 # -----------------^DATABASE^-----------------------
 
 
-api = Api(app)
-class HelloWorld(Resource):
-    def get(self):
-        return {'hello': 'world'}
+# api = Api(app)
+# class HelloWorld(Resource):
+    # def get(self):
+        # return {'hello': 'world'}
         
 
-api.add_resource(HelloWorld, '/')
+# api.add_resource(HelloWorld, '/')
 
 # -----------------^API^-----------------------
 
 ##### Homepage #####
 
-# @app.route('/')
-# def main():
-#     print(1)
-#     return 1
+@app.route('/')
+def main():
+    print(1)
+    return 1
 
 
 # -------^ROUTES^-------
