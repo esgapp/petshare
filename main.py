@@ -17,7 +17,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 db = SQLAlchemy(app)
 
 class User(db.Model):
-    User_id = db.Column(db.Integer, primary_key=True, nullable=False)
+    Id = db.Column(db.Integer, primary_key=True, nullable=False)
     Username = db.Column(db.String(20), nullable=False)
     Password = db.Column(db.String(100), nullable=False)
     Mail = db.Column(db.String(100), nullable=False)
@@ -28,7 +28,7 @@ class User(db.Model):
         return f"Item('{self.Id}', '{self.Name}')"
 
 class Item(db.Model):
-    Item_id = db.Column(db.Integer, primary_key=True, nullable=False)
+    Id = db.Column(db.Integer, primary_key=True, nullable=False)
     Title = db.Column(db.String(50),  nullable=False)
     Creator = db.Column(db.Integer, nullable=False)
     Description = db.Column(db.String(1000), nullable=False)
@@ -39,47 +39,90 @@ class Item(db.Model):
     Latitude = db.Column(db.Float, nullable=False)
     Date_created = db.Column(db.DateTime, nullable=False)
     Type = db.Column(db.Integer, nullable=False)
+    Expiry_date = db.Column(db.DateTime, nullable=True)
+    Receiver = db.Column(db.Integer, nullable=True)
 
     def __repr__(self):
-        return f"User('{self.Id}', '{self.Name}')"
+        return f"Item('{self.Id}', '{self.Title}')"
+
+class Message(db.Model):
+    Id = db.Column(db.Integer, primary_key=True, nullable=False)
+    Sender = db.Column(db.Integer, nullable=False)
+    Receiver = db.Column(db.Integer, nullable=False)
+    Message = db.Column(db.String(1000), nullable=True)
+    Date_created = db.Column(db.DateTime, nullable=False)
+    Item = db.Column(db.Integer, nullable=False)
+
+    def __repr__(self):
+        return f"User('{self.Id}', '{self.Message}')"
 
 db.create_all()
 db.session.commit()
 
 # -----------------^DATABASE^-----------------------
 
-api = Api(app)
-class HelloWorld(Resource):
-    def get(self):
-        return {'hello': 'world'}
-        
-
-api.add_resource(HelloWorld, '/')
-
-# -----------------^API^-----------------------
-
+def getIdByUsername(username):
+    return User.query.filter_by(Username=username).first().Id
 
 def hashPassword(password):
     return bcrypt.hashpw(password.encode(), bcrypt.gensalt())
 
-def verifyLogin(stored_password, provided_password):
+def verifyPassword(username, provided_password):
+    stored_password = User.query.filter_by(Username=username).first().Password
     return bcrypt.checkpw(provided_password.encode(), stored_password)
 
 def createAccount(username, password, mail, phone):
+    if(username in User.query.all().Username):
+        return False
     date_created = datetime.datetime.now()
     password = hashPassword(password)
     user = User(Username = username, Password = password, Mail = mail, Date_created = date_created, Phone = phone)
     db.session.add(user)
     db.session.commit()
+    return True
 
 
 # -----------------^LOGIN^-----------------------
 
+def sendMessage(sender, receiver, message, item):
+    date_created = datetime.datetime.now()
+    message = Message(Sender=getIdByUsername(sender), Receiver=getIdByUsername(receiver), Message=message, Date_created=date_created, Item=item)
+    db.session.add(message)
+    db.session.commit()
+    return True
+
+def getItemMessages(item):
+    return Message.query.filter_by(Item=item).all()
+
+
+# -----------------^Messages^-----------------------
+
+# Function that returns all items where a user provided resources
+def getProvidedHistory(user):
+    return Item.query.filter_by(Creator=getIdByUsername(user)).all()
+
+# Function that returns all items where a user received resources
+def getReceivedHistory(user):
+    return Item.query.filter_by(Receiver=getIdByUsername(user)).all()
+
+# -----------------^Newsletter^-----------------------
+
+# api = Api(app)
+# class HelloWorld(Resource):
+#     def get(self):
+#         return {'hello': 'world'}
+        
+
+# api.add_resource(HelloWorld, '/')
+
+# -----------------^API^-----------------------
+
 ##### Homepage #####
 
-# @app.route('/')
-# def main():
-#     print(createAccount("howiepolska", "pomarancza1", "j.trzyq@gmail.com", "+31651444094"))
+@app.route('/')
+def main():
+    #print(createAccount("howiepolska", "pomarancza1", "j.trzyq@gmail.com", "+31651444094"))
+    print(verifyPassword("howiepolska", "pomarancza1"))
 
 
 # -------^ROUTES^-------

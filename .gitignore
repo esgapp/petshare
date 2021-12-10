@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.db
 
 # C extensions
 *.so
@@ -26,7 +27,6 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
-site.db
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -128,3 +128,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+site.db
