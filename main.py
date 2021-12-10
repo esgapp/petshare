@@ -3,7 +3,8 @@ from flask import Flask, flash, render_template, redirect, request, url_for, jso
 from sqlalchemy.sql.expression import column
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Resource, Api
-from mail import sendEmail
+import bcrypt
+import datetime
 
 # -----------^IMPORTS^---------------
 
@@ -24,7 +25,7 @@ class User(db.Model):
     Phone = db.Column(db.String(20), nullable=False)
     
     def __repr__(self):
-        return f"User('{self.User_id}', '{self.Username}')"
+        return f"Item('{self.Id}', '{self.Name}')"
 
 class Item(db.Model):
     Item_id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -37,31 +38,48 @@ class Item(db.Model):
     Longitude = db.Column(db.Float, nullable=False)
     Latitude = db.Column(db.Float, nullable=False)
     Date_created = db.Column(db.DateTime, nullable=False)
+    Type = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
-        return f"Item('{self.Item_id}', '{self.Title}')"
+        return f"User('{self.Id}', '{self.Name}')"
 
 db.create_all()
+db.session.commit()
 
 # -----------------^DATABASE^-----------------------
 
-
-# api = Api(app)
-# class HelloWorld(Resource):
-    # def get(self):
-        # return {'hello': 'world'}
+api = Api(app)
+class HelloWorld(Resource):
+    def get(self):
+        return {'hello': 'world'}
         
 
-# api.add_resource(HelloWorld, '/')
+api.add_resource(HelloWorld, '/')
 
 # -----------------^API^-----------------------
 
+
+def hashPassword(password):
+    return bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+
+def verifyLogin(stored_password, provided_password):
+    return bcrypt.checkpw(provided_password.encode(), stored_password)
+
+def createAccount(username, password, mail, phone):
+    date_created = datetime.datetime.now()
+    password = hashPassword(password)
+    user = User(Username = username, Password = password, Mail = mail, Date_created = date_created, Phone = phone)
+    db.session.add(user)
+    db.session.commit()
+
+
+# -----------------^LOGIN^-----------------------
+
 ##### Homepage #####
 
-@app.route('/')
-def main():
-    print(1)
-    return 1
+# @app.route('/')
+# def main():
+#     print(createAccount("howiepolska", "pomarancza1", "j.trzyq@gmail.com", "+31651444094"))
 
 
 # -------^ROUTES^-------
