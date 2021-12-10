@@ -23,9 +23,11 @@ class User(db.Model):
     Mail = db.Column(db.String(100), nullable=False)
     Date_created = db.Column(db.DateTime, nullable=False)
     Phone = db.Column(db.String(20), nullable=False)
+    Longitude = db.Column(db.Float, nullable=False)
+    Latitude = db.Column(db.Float, nullable=False)
     
     def __repr__(self):
-        return f"Item('{self.Id}', '{self.Name}')"
+        return f"Item('{self.Id}', '{self.Username}')"
 
 class Item(db.Model):
     Id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -34,7 +36,7 @@ class Item(db.Model):
     Description = db.Column(db.String(1000), nullable=False)
     Price = db.Column(db.Integer, nullable=True)
     Mass = db.Column(db.Float, nullable=True)
-    Delivery_type = db.Column(db.Integer, nullable=False)
+    Delivery_type = db.Column(db.Integer, nullable=True)
     Longitude = db.Column(db.Float, nullable=False)
     Latitude = db.Column(db.Float, nullable=False)
     Date_created = db.Column(db.DateTime, nullable=False)
@@ -107,22 +109,40 @@ def getReceivedHistory(user):
 
 # -----------------^Newsletter^-----------------------
 
-# api = Api(app)
-# class HelloWorld(Resource):
-#     def get(self):
-#         return {'hello': 'world'}
-        
+# def populateItems():
+#     item1 = Item(Title="Stanislaw Howard", Description="Stanislaw Howard mata srata", Longitude=0.67, Latitude=1.45, Date_created=datetime.datetime.now(), Type=1, Creator=1)
+#     db.session.add(item1)
+#     item2 = Item(Title="mata srata", Description="Stanislaw Howard", Longitude=0.67, Latitude=1.45, Date_created=datetime.datetime.now(), Type=1, Creator=1)
+#     db.session.add(item2)
+#     item3 = Item(Title="sh", Description="sh", Longitude=0.67, Latitude=1.45, Date_created=datetime.datetime.now(), Type=1, Creator=1)
+#     db.session.add(item3)
+#     db.session.commit()
 
-# api.add_resource(HelloWorld, '/')
+def searchForItem(text, order="e"):
+    return list({*Item.query.filter(Item.Title.contains(text)).all(), *Item.query.filter(Item.Description.contains(text)).all()})
 
-# -----------------^API^-----------------------
+def orderByPriceDescending():
+    return 
+
+def orderByType():
+    pass
+
+def orderByDateAdded():
+    pass
+
+def orderByExpiryDate():
+    pass
+
+# -----------------^Item filtering^-----------------------
 
 ##### Homepage #####
 
 @app.route('/')
 def main():
+    #populateItems()
+    print(searchForItem("sh"))
     #print(createAccount("howiepolska", "pomarancza1", "j.trzyq@gmail.com", "+31651444094"))
-    print(verifyPassword("howiepolska", "pomarancza1"))
+    #print(verifyPassword("howiepolska", "pomarancza1"))
 
 
 # -------^ROUTES^-------
