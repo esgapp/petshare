@@ -24,7 +24,7 @@ class User(db.Model):
     Phone = db.Column(db.String(20), nullable=False)
     
     def __repr__(self):
-        return f"Item('{self.Id}', '{self.Name}')"
+        return f"User('{self.User_id}', '{self.Username}')"
 
 class Item(db.Model):
     Item_id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -39,7 +39,7 @@ class Item(db.Model):
     Date_created = db.Column(db.DateTime, nullable=False)
 
     def __repr__(self):
-        return f"User('{self.Id}', '{self.Name}')"
+        return f"Item('{self.Item_id}', '{self.Title}')"
 
 db.create_all()
 
