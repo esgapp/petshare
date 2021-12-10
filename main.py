@@ -1,11 +1,4 @@
-import os
-import os.path
-import random
-import re
-import sys
 import json
-import string
-from datetime import datetime
 from flask import Flask, flash, render_template, redirect, request, url_for, jsonify, session, Response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
@@ -46,7 +39,8 @@ db.create_all()
 
 @app.route('/')
 def main():
-    return render_template('index.html')
+    print(1)
+    return 1
 
 
 # -------^ROUTES^-------
