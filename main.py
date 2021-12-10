@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Resource, Api
 import bcrypt
 import datetime
+import operator
 
 # -----------^IMPORTS^---------------
 
@@ -18,7 +19,7 @@ db = SQLAlchemy(app)
 
 class User(db.Model):
     Id = db.Column(db.Integer, primary_key=True, nullable=False)
-    Username = db.Column(db.String(20), nullable=False)
+    Username = db.Column(db.String(20), nullable=False, unique=True)
     Password = db.Column(db.String(100), nullable=False)
     Mail = db.Column(db.String(100), nullable=False)
     Date_created = db.Column(db.DateTime, nullable=False)
@@ -34,13 +35,13 @@ class Item(db.Model):
     Title = db.Column(db.String(50),  nullable=False)
     Creator = db.Column(db.Integer, nullable=False)
     Description = db.Column(db.String(1000), nullable=False)
-    Price = db.Column(db.Integer, nullable=True)
+    Price = db.Column(db.Integer, nullable=True, default=0)
     Mass = db.Column(db.Float, nullable=True)
     Delivery_type = db.Column(db.Integer, nullable=True)
     Longitude = db.Column(db.Float, nullable=False)
     Latitude = db.Column(db.Float, nullable=False)
     Date_created = db.Column(db.DateTime, nullable=False)
-    Type = db.Column(db.Integer, nullable=False)
+    Type = db.Column(db.String(20), nullable=False)
     Expiry_date = db.Column(db.DateTime, nullable=True)
     Receiver = db.Column(db.Integer, nullable=True)
 
@@ -109,29 +110,29 @@ def getReceivedHistory(user):
 
 # -----------------^Newsletter^-----------------------
 
-# def populateItems():
-#     item1 = Item(Title="Stanislaw Howard", Description="Stanislaw Howard mata srata", Longitude=0.67, Latitude=1.45, Date_created=datetime.datetime.now(), Type=1, Creator=1)
-#     db.session.add(item1)
-#     item2 = Item(Title="mata srata", Description="Stanislaw Howard", Longitude=0.67, Latitude=1.45, Date_created=datetime.datetime.now(), Type=1, Creator=1)
-#     db.session.add(item2)
-#     item3 = Item(Title="sh", Description="sh", Longitude=0.67, Latitude=1.45, Date_created=datetime.datetime.now(), Type=1, Creator=1)
-#     db.session.add(item3)
-#     db.session.commit()
+def populateItems():
+    item1 = Item(Title="Stanislaw Howard", Description="Stanislaw Howard mata srata", Longitude=0.67, Latitude=1.45, Date_created=datetime.datetime.now(), Type=1, Creator=1)
+    db.session.add(item1)
+    item2 = Item(Title="mata srata", Description="Stanislaw Howard", Longitude=0.67, Latitude=1.45, Date_created=datetime.datetime.now(), Type=1, Creator=1)
+    db.session.add(item2)
+    item3 = Item(Title="sh", Description="sh", Longitude=0.67, Latitude=1.45, Date_created=datetime.datetime.now(), Type=1, Creator=1)
+    db.session.add(item3)
+    db.session.commit()
 
-def searchForItem(text, order="e"):
+def searchForItem(text):
     return list({*Item.query.filter(Item.Title.contains(text)).all(), *Item.query.filter(Item.Description.contains(text)).all()})
 
-def orderByPriceDescending():
-    return 
+def orderByPrice(x):
+    return sorted(x, key=operator.attrgetter('Price'))
 
-def orderByType():
-    pass
+def orderByType(x):
+    return sorted(x, key=operator.attrgetter('Type'))
 
-def orderByDateAdded():
-    pass
+def orderByDateAdded(x):
+    return sorted(x, key=operator.attrgetter('Date_created'))
 
-def orderByExpiryDate():
-    pass
+def orderByExpiryDate(x):
+    return sorted(x, key=operator.attrgetter('Expiry_date'))
 
 # -----------------^Item filtering^-----------------------
 
@@ -140,7 +141,7 @@ def orderByExpiryDate():
 @app.route('/')
 def main():
     #populateItems()
-    print(searchForItem("sh"))
+    print(orderByPrice(searchForItem("sh")))
     #print(createAccount("howiepolska", "pomarancza1", "j.trzyq@gmail.com", "+31651444094"))
     #print(verifyPassword("howiepolska", "pomarancza1"))
 
