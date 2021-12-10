@@ -2,14 +2,13 @@ import json
 from flask import Flask, flash, render_template, redirect, request, url_for, jsonify, session, Response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
+from flask_restful import Resource, Api
 
 # -----------^IMPORTS^---------------
 
 app = Flask(__name__)
 app.secret_key = 'petsharepetsharepetsharepetsharepetsharepetsharepetshare'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
-
-
 
 # -------------^CONFIGS^-------------
 
@@ -35,12 +34,21 @@ db.create_all()
 # -----------------^DATABASE^-----------------------
 
 
+api = Api(app)
+class HelloWorld(Resource):
+    def get(self):
+        return {'hello': 'world'}
+
+api.add_resource(HelloWorld, '/')
+
+# -----------------^API^-----------------------
+
 ##### Homepage #####
 
-@app.route('/')
-def main():
-    print(1)
-    return 1
+# @app.route('/')
+# def main():
+#     print(1)
+#     return 1
 
 
 # -------^ROUTES^-------
