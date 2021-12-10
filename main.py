@@ -3,6 +3,7 @@ from flask import Flask, flash, render_template, redirect, request, url_for, jso
 from sqlalchemy.sql.expression import column
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Resource, Api
+from accounts import *
 
 # -----------^IMPORTS^---------------
 
