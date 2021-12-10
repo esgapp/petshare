@@ -1,7 +1,6 @@
 import json
 from flask import Flask, flash, render_template, redirect, request, url_for, jsonify, session, Response
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func
 from flask_restful import Resource, Api
 
 # -----------^IMPORTS^---------------
