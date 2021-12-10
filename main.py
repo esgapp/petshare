@@ -1,5 +1,6 @@
 import json
 from flask import Flask, flash, render_template, redirect, request, url_for, jsonify, session, Response
+from sqlalchemy.sql.expression import column
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Resource, Api
 
@@ -13,17 +14,28 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 
 db = SQLAlchemy(app)
 
-class Item(db.Model):
-    Id = db.Column(db.Integer, primary_key=True)
-    Name = db.Column(db.String(50), nullable=False)
-
+class User(db.Model):
+    User_id = db.Column(db.Integer, primary_key=True, nullable=False)
+    Username = db.Column(db.String(20), nullable=False)
+    Password = db.Column(db.String(100), nullable=False)
+    Mail = db.Column(db.String(100), nullable=False)
+    Date_created = db.Column(db.DateTime, nullable=False)
+    Phone = db.Column(db.String(20), nullable=False)
+    
     def __repr__(self):
         return f"Item('{self.Id}', '{self.Name}')"
 
-class User(db.Model):
-    Id = db.Column(db.Integer, primary_key=True)
-    Username = db.Column(db.String(20), nullable=False)
-    Password = db.Column(db.String(100), nullable=False)
+class Item(db.Model):
+    Item_id = db.Column(db.Integer, primary_key=True, nullable=False)
+    Title = db.Column(db.String(50),  nullable=False)
+    Creator = db.Column(db.Integer, nullable=False)
+    Description = db.Column(db.String(1000), nullable=False)
+    Price = db.Column(db.Integer, nullable=True)
+    Mass = db.Column(db.Float, nullable=True)
+    Delivery_type = db.Column(db.Integer, nullable=False)
+    Longitude = db.Column(db.Float, nullable=False)
+    Latitude = db.Column(db.Float, nullable=False)
+    Date_created = db.Column(db.DateTime, nullable=False)
 
     def __repr__(self):
         return f"User('{self.Id}', '{self.Name}')"
