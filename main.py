@@ -329,6 +329,13 @@ def add_listing():
             'msg': 'user not logged in'
         })
     data = request.get_json()
+    required = ['title', 'description', 'price', 'delivery_type']
+    for req in required:
+        if req not in data:
+            return jsonify({
+                'status': 'fail',
+                'msg': f'{req} information missing'
+                })
     user_id = session['user_id']
     latitude, longitude = getUserLocation(user_id)
     item = Item(
@@ -336,13 +343,13 @@ def add_listing():
         Title = data['title'],
         Description = data['description'],
         Price = data['price'],
-        Mass = data['mass'],
+        Mass = data['mass'] if 'mass' in data else None,
         Delivery_type = data['delivery_type'],
         Latitude = latitude,
         Longitude = longitude,
-        Type = data['type'],
+        Type = data['type'] if 'type' in data else 'Other-Other',
         Date_created = datetime.datetime.now(),
-        Expiry_date = datetime.date.fromisoformat(data['expiry_date']),
+        Expiry_date = datetime.date.fromisoformat(data['expiry_date']) if 'expiry_date' in data else None,
     )
     db.session.add(item)
     db.session.commit()
