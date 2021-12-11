@@ -358,6 +358,28 @@ def add_listing():
     db.session.commit()
     return jsonify({'status': 'ok'})
 
+@app.route('/listing/contact', methods=['POST'])
+def contact():
+    data = request.get_json()
+    if 'item_id' not in data:
+        return jsonify({
+            'status': 'fail',
+            'msg': 'no item id'
+            })
+    item_id = data['item_id']
+    item = Item.query.filter_by(Id=item_id).first()
+    if not item:
+        return jsonify({
+            'status': 'fail',
+            'msg': 'no such item'
+            })
+    user = User.query.filter_by(Id=item.Creator).first()
+    return jsonify({
+        'status': 'ok',
+        'mail': user.Mail,
+        'phone': user.Phone
+        })
+
 @app.route('/listings', methods=["POST"])
 def listings():
     data = request.get_json()
