@@ -94,6 +94,10 @@ def createAccount(username, password, mail, phone, longitude=None, latitude=None
     db.session.commit()
     return True
 
+def getUserLocation(id):
+    user = User.query.filter_by(Id=id).first()
+    return user.Latitude, user.Longitude
+
 
 # -----------------^LOGIN^-----------------------
 
@@ -288,6 +292,7 @@ def listing(id):
         'delivery_type': r.Delivery_type,
         'latitude': r.Latitude,
         'longitude': r.Longitude,
+        'distance': calculateDistance(user_lat, user_long, r.Latitude, r.Longitude) if user_lat is not None and user_long is not None else None,
         'date_created': r.Date_created,
         'type': r.Type,
         'expiry_date': r.Expiry_date,
@@ -297,23 +302,26 @@ def listing(id):
 
 @app.route('/add_listing', methods=['POST'])
 def add_listing():
-    if not session['user_id']:
+    if 'user_id' not in session: 
         return jsonify({
             'status': 'fail',
             'msg': 'user not logged in'
         })
     data = request.get_json()
+    user_id = session['user_id']
+    latitude, longitude = getUserLocation(user_id)
     item = Item(
+        Creator = user_id,
         Title = data['title'],
         Description = data['description'],
         Price = data['price'],
         Mass = data['mass'],
         Delivery_type = data['delivery_type'],
-        Latitude = data['latitude'],
-        Longitude = data['longitude'],
+        Latitude = latitude,
+        Longitude = longitude,
         Type = data['type'],
         Date_created = datetime.datetime.now(),
-        Expiry_date = data['expiry_date'],
+        Expiry_date = datetime.date.fromisoformat(data['expiry_date']),
     )
     db.session.add(item)
     db.session.commit()
@@ -330,7 +338,6 @@ def listings():
     key_word = data['key_word'] if 'key_word' in data else ''
     
     items = searchForItem(key_word)
-    print(items)
     if user_long and user_lat and max_dist:
         items = [item for item in items if calculateDistance(user_lat, user_long, item.Latitude, item.Longitude) <= max_dist]
     sort_order = sort_order == "desc"
@@ -342,6 +349,7 @@ def listings():
         items = orderByPrice(items)
     elif sort_order == "type":
         items = orderByType(items)
+    if sort_by == "desc": items = reversed(items)
     res = [{"item" : {  
         'id': r.Id,
         'title': r.Title,
@@ -352,11 +360,12 @@ def listings():
         'delivery_type': r.Delivery_type,
         'latitude': r.Latitude,
         'longitude': r.Longitude,
+        'distance': calculateDistance(user_lat, user_long, r.Latitude, r.Longitude) if user_lat is not None and user_long is not None else None,
         'date_created': r.Date_created,
         'type': r.Type,
         'expiry_date': r.Expiry_date,
         }} for r in items]
-    return jsonify(res)
+    return jsonify({'status':'ok', 'items': res})
 
 
 # -------^ROUTES^-------
