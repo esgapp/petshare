@@ -30,6 +30,9 @@ class User(db.Model):
     def __repr__(self):
         return f"Item('{self.Id}', '{self.Username}')"
 
+TYPES = ["Cats-Food", "Cats-Toys", "Cats-Cat Trees", "Cats-Litter", "Cats-Clothes", "Cats-Beds", "Cats-Transportation", "Cats-Other", "Dogs-Food", 
+"Dogs-Toys", "Dogs-Clothes", "Dogs-Kennels", "Dogs-Transportation", "Dogs-Other", "Other", "Other-Fish", "Other-Birds", "Other-Small Mammals", "Other-Other"]
+
 class Item(db.Model):
     Id = db.Column(db.Integer, primary_key=True, nullable=False)
     Title = db.Column(db.String(50),  nullable=False)
@@ -57,7 +60,7 @@ class Message(db.Model):
     Item = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
-        return f"User('{self.Id}', '{self.Message}')"
+        return f"Message('{self.Id}', '{self.Message}')"
 
 db.create_all()
 db.session.commit()
@@ -66,6 +69,9 @@ db.session.commit()
 
 def getIdByUsername(username):
     return User.query.filter_by(Username=username).first().Id
+
+def getUsernameById(userid):
+    return User.query.filter_by(Id=userid).first().Username
 
 def hashPassword(password):
     return bcrypt.hashpw(password.encode(), bcrypt.gensalt())
@@ -108,7 +114,16 @@ def getProvidedHistory(user):
 def getReceivedHistory(user):
     return Item.query.filter_by(Receiver=getIdByUsername(user)).all()
 
+def calculateUserCategories(user):
+    pass
+
 # -----------------^Newsletter^-----------------------
+
+def addItem(title, description, longitude, latitude, creator, itemtype="Other-Other"):
+    item = Item(Title=title, Description=description, Longitude=longitude, Latitude=latitude, Date_created=datetime.datetime.now(), Type=itemtype, Creator=creator)
+    db.session.add(item)
+    db.session.commit()
+    return item
 
 def populateItems():
     item1 = Item(Title="Stanislaw Howard", Description="Stanislaw Howard mata srata", Longitude=0.67, Latitude=1.45, Date_created=datetime.datetime.now(), Type=1, Creator=1)
@@ -118,6 +133,8 @@ def populateItems():
     item3 = Item(Title="sh", Description="sh", Longitude=0.67, Latitude=1.45, Date_created=datetime.datetime.now(), Type=1, Creator=1)
     db.session.add(item3)
     db.session.commit()
+
+# -----------------^Items^-----------------------
 
 def searchForItem(text):
     return list({*Item.query.filter(Item.Title.contains(text)).all(), *Item.query.filter(Item.Description.contains(text)).all()})
