@@ -1,5 +1,5 @@
 import json
-from flask import Flask, flash, render_template, redirect, request, url_for, jsonify, session, Response
+from flask import Flask, flash, request, jsonify, session, Response
 from sqlalchemy.sql.expression import column
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Resource, Api
@@ -83,12 +83,12 @@ def verifyPassword(username, provided_password):
         return False
     return bcrypt.checkpw(provided_password.encode(), stored_password.Password)
 
-def createAccount(username, password, mail, phone):
+def createAccount(username, password, mail, phone, longitude=None, latitude=None):
     if User.query.filter_by(Username=username).first():
         return False
     date_created = datetime.datetime.now()
     password = hashPassword(password)
-    user = User(Username = username, Password = password, Mail = mail, Date_created = date_created, Phone = phone)
+    user = User(Username = username, Password = password, Mail = mail, Date_created = date_created, Phone = phone, Longitude = longitude, Latitude = latitude)
     db.session.add(user)
     db.session.commit()
     return True
