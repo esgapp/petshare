@@ -230,7 +230,61 @@ def logout():
 
 @app.route('/register', methods=['POST'])
 def register():
-    pass
+    username = request.form['username']
+    password = request.form['password']
+    mail = request.form['mail']
+    phone = request.form['phone']
+    longitude = request.form['longitude']
+    latitude = request.form['latitude']
+    if createAccount(username, password, mail, phone, longitude, latitude):
+        return {'status': 'ok'}
+    else:
+        return {'status': 'fail'} 
+
+@app.route('/listing/<int:id>', methods=['POST'])
+def listing(id):
+    r = Item.query.filterBy(Id=id).first()
+    if not r:
+        return {'status': 'fail'}
+    return {
+        'id': r.Id,
+        'title': r.Title,
+        'creator': r.Creator,
+        'description': r.Description,
+        'price': r.Price,
+        'mass': r.Mass,
+        'delivery_type': r.Delivery_type,
+        'latitude': r.Latitude,
+        'longitude': r.Longitude,
+        'date_created': r.Date_created,
+        'type': r.Type,
+        'expiry_date': r.Expiry_date,
+        'receiver': r.Receiver,
+        'status': 'ok'
+    }
+
+@app.route('/add_listing', methods=['POST'])
+def add_listing():
+    if not session['user_id']:
+        return {
+            'status': 'fail',
+            'msg': 'user not logged in'
+        }
+    item = Item(
+        Title = request.form['title'],
+        Description = request.form['description'],
+        Price = request.form['price'],
+        Mass = request.form['mass'],
+        Delivery_type = request.form['delivery_type'],
+        Latitude = request.form['latitude'],
+        Longitude = request.form['longitude'],
+        Type = request.form['type'],
+        Date_created = datetime.datetime.now(),
+        Expiry_date = request.form['expiry_date'],
+    )
+    db.session.add(item)
+    db.session.commit()
+    return {'status': 'ok'}
 
 # -------^ROUTES^-------
 
