@@ -7,6 +7,7 @@ from math import sin, cos, sqrt, atan2, radians
 import bcrypt
 import datetime
 import operator
+from sqlalchemy import and_, or_
 
 # -----------^IMPORTS^---------------
 
@@ -46,7 +47,7 @@ class Item(db.Model):
     Date_created = db.Column(db.DateTime, nullable=False)
     Type = db.Column(db.String(20), nullable=False)
     Expiry_date = db.Column(db.DateTime, nullable=True)
-    Receiver = db.Column(db.Integer, nullable=True)
+    Receiver = db.Column(db.Integer, nullable=True, default="NONE")
 
     def __repr__(self):
         return f"Item('{self.Id}', '{self.Title}')"
@@ -159,7 +160,11 @@ def addItem(title, description, longitude, latitude, creator, itemtype="Other-Ot
     return item
 
 def addPurchase(item, receiver):
-    pass
+    Item.query.filter_by(Id=item).first().Receiver = receiver
+    db.session.commit()
+    return True
+
+#print(addPurchase(3, "HOWIEBOWIE"))
 
 def populateItems():
     item1 = Item(Title="Stanislaw Howard", Description="Stanislaw Howard mata srata", Longitude=0.67, Latitude=1.45, Date_created=datetime.datetime.now(), Type=1, Creator=1)
@@ -173,7 +178,7 @@ def populateItems():
 # -----------------^Items^-----------------------
 
 def searchForItem(text):
-    return list({*Item.query.filter(Item.Title.contains(text)).all(), *Item.query.filter(Item.Description.contains(text)).all()})
+    return Item.query.filter(and_(or_(Item.Title.contains(text), Item.Description.contains(text)), Item.Receiver!="NONE")).all()
 
 def orderByPrice(x):
     return sorted(x, key=operator.attrgetter('Price'))
@@ -197,6 +202,7 @@ def main():
     print(orderByPrice(searchForItem("sh")))
     #print(createAccount("howiepolska", "pomarancza1", "j.trzyq@gmail.com", "+31651444094"))
     #print(verifyPassword("howiepolska", "pomarancza1"))
+    return 0
 
 @app.route('/login', methods=['POST'])
 def login():
