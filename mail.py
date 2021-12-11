@@ -359,7 +359,7 @@ ul.social li{
             		<td>
             			<div class="text" style="padding: 0 2.5em; text-align: center;">
             				<h2>Dear vrtkujyhiasdr4gtfigsdfulgy,</h2>
-            				<h4>ilothj5oyithjyjkldfshjasd</h4>
+            				<h4 style="text-align: left; ">ilothj5oyithjyjkldfshjasd</h4>
             				
                             <h4 style="text-align: left;">Sincerely yours,</h4>
                             <h4 style="text-align: left;">Petsify Team</h4>

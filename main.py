@@ -167,7 +167,7 @@ def giveRecommendations(user):
     
 def sendRecommendationEmails(user):
     recommendations = giveRecommendations(user)
-    print(recommendations)
+    
     email = User.query.filter_by(Username=user).first().Mail
     title = "New product recommendations"
     contents = f""
@@ -177,6 +177,25 @@ def sendRecommendationEmails(user):
     sendEmail(email, title, contents, user)
     return True
 
+def sendOrganisationEmail(user, organisation):
+    email = "stashoward12@gmail.com"
+    #User.query.filter_by(Username=user).first().Mail
+    title = "Check out this cool animal non-profit!"
+    contents = """We would like to invite you to a livestream organised by """ + organisation + """. 
+    We belive that the first step to decreasing the carbon footprint is to educate the society on this matter .
+    By joining our webinar you will not only learn how to make use of old and used products but also get some insight 
+    into as to how to reduce your own carbon footprint by changing little things. 
+    
+    <br><br><br> Be the change! <br>
+
+    <br> <img src="https://images.pexels.com/photos/1072824/pexels-photo-1072824.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260" alt="" style="width: 300px; max-width: 600px; height: auto; margin: auto; display: block;">
+    <br> <br> Join Us on a Zoom stream on 20 December 2021 
+    <br> https://zoom.us/join?confno=8529015944&pwd=&uname=Nobody%20-%2051800000000
+    """
+    
+    sendEmail(email, title, contents, user)
+    return True
+sendOrganisationEmail("howie", "Schronisko")
 #print(sendRecommendationEmails("1"))
 
 # -----------------^Newsletter^-----------------------
