@@ -10,6 +10,7 @@ from sqlalchemy import and_, or_
 from mail import *
 from animal_model import *
 from flask_cors import CORS
+import hmac
 
 # -----------^IMPORTS^---------------
 
@@ -248,7 +249,7 @@ def orderByExpiryDate(x):
 
 @app.route('/')
 def main():
-    populateItems()
+    # populateItems()
     print(orderByPrice(searchForItem("sh")))
     print(createAccount("howiepolska", "pomarancza1", "j.trzyq@gmail.com", "+31651444094"))
     #print(verifyPassword("howiepolska", "pomarancza1"))
@@ -262,11 +263,11 @@ def login():
     if username and password:
         if verifyPassword(username, password):
             id = getIdByUsername(username)
-            session['user_id'] = id
             return jsonify({
                 'username': username,
                 'user_id': id,
                 'status': 'ok',
+                'session_key': hmac.new(app.secret_key.encode(), str(id).encode(), 'sha256').hexdigest()
             })
         else:
             return jsonify({
@@ -278,12 +279,12 @@ def login():
         'msg': 'incomplete request'
     })
 
-@app.route('/logout', methods=['POST'])
-def logout():
-    session.pop('user_id', None)
-    return jsonify({
-        'status': 'ok'
-    })
+# @app.route('/logout', methods=['POST'])
+# def logout():
+    # session.pop('user_id', None)
+    # return jsonify({
+        # 'status': 'ok'
+    # })
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -324,20 +325,21 @@ def listing(id):
 
 @app.route('/add_listing', methods=['POST'])
 def add_listing():
-    if 'user_id' not in session: 
+    data = request.get_json()
+    if 'user_id' not in data or 'session_key' not in data or\
+            hmac.new(app.secret_key.encode(), str(data['user_id']).encode(), 'sha256').hexdigest() != data['session_key']:
         return jsonify({
             'status': 'fail',
-            'msg': 'user not logged in'
+            'msg': 'user not logged in '
         })
-    data = request.get_json()
     required = ['title', 'description', 'price', 'delivery_type']
+    user_id  = data['user_id']
     for req in required:
         if req not in data:
             return jsonify({
                 'status': 'fail',
                 'msg': f'{req} information missing'
                 })
-    user_id = session['user_id']
     latitude, longitude = getUserLocation(user_id)
     item = Item(
         Creator = user_id,
@@ -398,39 +400,42 @@ def listings():
 
 @app.route('/listing/react', methods=["POST"])
 def react_to_listing():
-    if 'user_id' not in session:
+    data = request.get_json()
+    if 'user_id' not in data or 'session_key' not in data or\
+            hmac.new(app.secret_key.encode(), str(data['user_id']).encode(), 'sha256').hexdigest() != data['session_key']:
         return jsonify({
             'status': 'fail',
-            'msg': 'user not logged in'
+            'msg': 'user not logged in '
         })
-    data = request.get_json()
+    user_id = data['user_id']
     if 'item_id' not in data:
         return jsonify({
             'status': 'fail',
             'msg': 'no item'
             })
     
-    addPurchase(data['item_id'], session['user_id'])
+    addPurchase(data['item_id'], user_id)
 
     item = Item.query.filter_by(Id=data['item_id']).first()
     user = User.query.filter_by(Id=item.Creator).first()
-    user_receiver = User.query.filter_by(Id=session['user_id']).first()
+    user_receiver = User.query.filter_by(Id=user_id).first()
 
-    sendEmail(user.Mail, 'Your item was reserved', f'Item {item.Title} was reserved by {getUsername(session["user_id"])}', user.Username)
+    sendEmail(user.Mail, 'Your item was reserved', f'Item {item.Title} was reserved by {getUsername(user_id)}', user.Username)
     sendEmail(user_receiver.Mail, 'You reserved an item', f'You reserved {item.Title} from {user.Username}', user_receiver.Username)
 
     return jsonify({'status': 'ok'})
 
 @app.route('/send_message', methods=["POST"])
 def send_message():
-    if 'user_id' not in session:
+    data = request.get_json()
+    if 'user_id' not in data or 'session_key' not in data or\
+            hmac.new(app.secret_key.encode(), str(data['user_id']).encode(), 'sha256').hexdigest() != data['session_key']:
         return jsonify({
             'status': 'fail',
-            'msg': 'user not logged in'
+            'msg': 'user not logged in '
         })
-    data = request.get_json()
     msg = Message(
-        Sender = session['user_id'],
+        Sender = user_id,
         Receiver = data['receiver'] if 'receiver' in data else None,
         Message = data['message'] if 'message' in data else None,
         Date_created = datetime.datetime.now(),
