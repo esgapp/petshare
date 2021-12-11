@@ -250,10 +250,7 @@ def orderByExpiryDate(x):
 
 @app.route('/')
 def main():
-    # populateItems()
-    print(orderByPrice(searchForItem("sh")))
     print(createAccount("howiepolska", "pomarancza1", "j.trzyq@gmail.com", "+31651444094"))
-    #print(verifyPassword("howiepolska", "pomarancza1"))
     return 0
 
 @app.route('/login', methods=['POST'])
@@ -268,7 +265,9 @@ def login():
                 'username': username,
                 'user_id': id,
                 'status': 'ok',
-                'session_key': hmac.new(app.secret_key.encode(), str(id).encode(), 'sha256').hexdigest()
+                'session_key': hmac.new(app.secret_key.encode(), str(id).encode(), 'sha256').hexdigest(),
+                'mail': User.query.filter_by(Id=id).first.Mail,
+                'phone': User.query.filter_by(Id=id).first.Phone
             })
         else:
             return jsonify({
@@ -348,7 +347,7 @@ def add_listing():
         Description = data['description'],
         Price = data['price'],
         Mass = data['mass'] if 'mass' in data else None,
-        Delivery_type = data['delivery_type'],
+        Delivery_type = int(data['delivery_type']),
         Latitude = latitude,
         Longitude = longitude,
         Type = data['type'] if 'type' in data else 'Other-Other',
