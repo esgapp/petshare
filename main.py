@@ -2,7 +2,6 @@ import json
 from flask import Flask, flash, request, jsonify, session, Response
 from sqlalchemy.sql.expression import column
 from flask_sqlalchemy import SQLAlchemy
-from flask_restful import Resource, Api
 from math import sin, cos, sqrt, atan2, radians
 import bcrypt
 import datetime
@@ -10,12 +9,14 @@ import operator
 from sqlalchemy import and_, or_
 from mail import *
 from animal_model import *
+from flask_cors import CORS
 
 # -----------^IMPORTS^---------------
 
 app = Flask(__name__)
 app.secret_key = 'petsharepetsharepetsharepetsharepetsharepetsharepetshare'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+CORS(app)
 
 # -------------^CONFIGS^-------------
 
@@ -255,7 +256,6 @@ def main():
 
 @app.route('/login', methods=['POST'])
 def login():
-    response.headers.add("Access-Control-Allow-Origin", "*")
     data = request.get_json()
     username = data['username']
     password = data['password']
@@ -280,7 +280,6 @@ def login():
 
 @app.route('/logout', methods=['POST'])
 def logout():
-    response.headers.add("Access-Control-Allow-Origin", "*")
     session.pop('user_id', None)
     return jsonify({
         'status': 'ok'
@@ -288,7 +287,6 @@ def logout():
 
 @app.route('/register', methods=['POST'])
 def register():
-    response.headers.add("Access-Control-Allow-Origin", "*")
     data = request.get_json()
     username = data['username']
     password = data['password']
@@ -303,7 +301,6 @@ def register():
 
 @app.route('/listing/<int:id>', methods=['POST'])
 def listing(id):
-    response.headers.add("Access-Control-Allow-Origin", "*")
     r = Item.query.filterBy(Id=id).first()
     if not r:
         return jsonify({'status': 'fail'})
@@ -327,7 +324,6 @@ def listing(id):
 
 @app.route('/add_listing', methods=['POST'])
 def add_listing():
-    response.headers.add("Access-Control-Allow-Origin", "*")
     if 'user_id' not in session: 
         return jsonify({
             'status': 'fail',
@@ -362,7 +358,6 @@ def add_listing():
 
 @app.route('/listings', methods=["POST"])
 def listings():
-    response.headers.add("Access-Control-Allow-Origin", "*")
     data = request.get_json()
     user_long = data['user_long'] if 'user_long' in data else None
     user_lat = data['user_lat'] if 'user_lat' in data else None
@@ -403,7 +398,6 @@ def listings():
 
 @app.route('/listing/react', methods=["POST"])
 def react_to_listing():
-    response.headers.add("Access-Control-Allow-Origin", "*")
     if 'user_id' not in session:
         return jsonify({
             'status': 'fail',
@@ -429,7 +423,6 @@ def react_to_listing():
 
 @app.route('/send_message', methods=["POST"])
 def send_message():
-    response.headers.add("Access-Control-Allow-Origin", "*")
     if 'user_id' not in session:
         return jsonify({
             'status': 'fail',
@@ -449,7 +442,6 @@ def send_message():
 
 @app.route('/item_messages', methods=["POST"])
 def item_messages():
-    response.headers.add("Access-Control-Allow-Origin", "*")
     data = request.get_json()
     if 'item' not in data:
         return jsonify({'status': 'fail'})
