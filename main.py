@@ -229,7 +229,8 @@ def populateItems():
 # -----------------^Items^-----------------------
 
 def searchForItem(text):
-    return Item.query.filter(and_(or_(Item.Title.contains(text), Item.Description.contains(text)), Item.Receiver=="NONE")).all()
+    # return Item.query.filter(and_(or_(Item.Title.contains(text), Item.Description.contains(text)), Item.Receiver=="NONE")).all()
+    return Item.query.all()
 
 def orderByPrice(x):
     return sorted(x, key=operator.attrgetter('Price'))
@@ -395,6 +396,7 @@ def listings():
         'date_created': r.Date_created,
         'type': r.Type,
         'expiry_date': r.Expiry_date,
+        'receiver': int(r.Receiver) if r.Receiver != "NONE" else None
         }} for r in items]
     return jsonify({'status':'ok', 'items': res})
 
