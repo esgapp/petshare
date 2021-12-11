@@ -9,6 +9,7 @@ import datetime
 import operator
 from sqlalchemy import and_, or_
 from mail import *
+from animal_model import *
 
 # -----------^IMPORTS^---------------
 
