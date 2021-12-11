@@ -337,9 +337,9 @@ def listings():
     if sort_order == "added":
         items = orderByDateAdded(items)
     elif sort_order == "expiry":
-        items = orderByExpiryDate(itmes)
+        items = orderByExpiryDate(items)
     elif sort_order == "price":
-        items = orderByPrice(itmes)
+        items = orderByPrice(items)
     elif sort_order == "type":
         items = orderByType(items)
     res = [{"item" : {  
