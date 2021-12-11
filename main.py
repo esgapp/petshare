@@ -84,7 +84,7 @@ def verifyPassword(username, provided_password):
     return bcrypt.checkpw(provided_password.encode(), stored_password.Password)
 
 def createAccount(username, password, mail, phone):
-    if(username in User.query.all().Username):
+    if User.query.filter_by(Username=username).first():
         return False
     date_created = datetime.datetime.now()
     password = hashPassword(password)
@@ -182,53 +182,55 @@ def main():
 
 @app.route('/login', methods=['POST'])
 def login():
-    username = request.form['username']
-    password = request.form['password']
+    data = request.get_json()
+    username = data['username']
+    password = data['password']
     if username and password:
         if verifyPassword(username, password):
             id = getIdByUsername(username)
             session['user_id'] = id
-            return {
+            return jsonify({
                 'username': username,
                 'user_id': id,
                 'status': 'ok',
-            }
+            })
         else:
-            return {
+            return jsonify({
                 'status': 'fail',
                 'msg': 'wrong password'
-            }
-    return {
+            })
+    return jsonify({
         'status': 'fail',
-        'msg': 'invalid request schema'
-    }
+        'msg': 'incomplete request'
+    })
 
 @app.route('/logout', methods=['POST'])
 def logout():
     session.pop('user_id', None)
-    return {
+    return jsonify({
         'status': 'ok'
-    }
+    })
 
 @app.route('/register', methods=['POST'])
 def register():
-    username = request.form['username']
-    password = request.form['password']
-    mail = request.form['mail']
-    phone = request.form['phone']
-    longitude = request.form['longitude']
-    latitude = request.form['latitude']
+    data = request.get_json()
+    username = data['username']
+    password = data['password']
+    mail = data['mail']
+    phone = data['phone']
+    longitude = data['longitude']
+    latitude = data['latitude']
     if createAccount(username, password, mail, phone, longitude, latitude):
-        return {'status': 'ok'}
+        return jsonify({'status': 'ok'})
     else:
-        return {'status': 'fail'} 
+        return jsonify({'status': 'fail'}) 
 
 @app.route('/listing/<int:id>', methods=['POST'])
 def listing(id):
     r = Item.query.filterBy(Id=id).first()
     if not r:
-        return {'status': 'fail'}
-    return {
+        return jsonify({'status': 'fail'})
+    return jsonify({
         'id': r.Id,
         'title': r.Title,
         'creator': r.Creator,
@@ -243,30 +245,31 @@ def listing(id):
         'expiry_date': r.Expiry_date,
         'receiver': r.Receiver,
         'status': 'ok'
-    }
+    })
 
 @app.route('/add_listing', methods=['POST'])
 def add_listing():
     if not session['user_id']:
-        return {
+        return jsonify({
             'status': 'fail',
             'msg': 'user not logged in'
-        }
+        })
+    data = request.get_json()
     item = Item(
-        Title = request.form['title'],
-        Description = request.form['description'],
-        Price = request.form['price'],
-        Mass = request.form['mass'],
-        Delivery_type = request.form['delivery_type'],
-        Latitude = request.form['latitude'],
-        Longitude = request.form['longitude'],
-        Type = request.form['type'],
+        Title = data['title'],
+        Description = data['description'],
+        Price = data['price'],
+        Mass = data['mass'],
+        Delivery_type = data['delivery_type'],
+        Latitude = data['latitude'],
+        Longitude = data['longitude'],
+        Type = data['type'],
         Date_created = datetime.datetime.now(),
-        Expiry_date = request.form['expiry_date'],
+        Expiry_date = data['expiry_date'],
     )
     db.session.add(item)
     db.session.commit()
-    return {'status': 'ok'}
+    return jsonify({'status': 'ok'})
 
 # -------^ROUTES^-------
 
