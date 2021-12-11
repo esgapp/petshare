@@ -2,3 +2,6 @@ flask
 Flask-SQLAlchemy
 flask-restful
 bcrypt
+opencv-python
+keras
+tensorflow
