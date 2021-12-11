@@ -266,8 +266,8 @@ def login():
                 'user_id': id,
                 'status': 'ok',
                 'session_key': hmac.new(app.secret_key.encode(), str(id).encode(), 'sha256').hexdigest(),
-                'mail': User.query.filter_by(Id=id).first.Mail,
-                'phone': User.query.filter_by(Id=id).first.Phone
+                'mail': User.query.filter_by(Id=id).first().Mail,
+                'phone': User.query.filter_by(Id=id).first().Phone
             })
         else:
             return jsonify({
