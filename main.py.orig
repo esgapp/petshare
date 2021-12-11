@@ -1,6 +1,10 @@
 import json
+<<<<<<< HEAD
 import os
-from flask import Flask, flash, request, jsonify, session, Response, redirect, url_for, render_template
+from flask import Flask, flash, request, jsonify, session, Response, redirect, url_for
+=======
+from flask import Flask, flash, request, jsonify, session, Response, render_template
+>>>>>>> 475c1d9305a13bfc2bc3ef32ec4f79a5f8efa11d
 from sqlalchemy.sql.expression import column
 from flask_sqlalchemy import SQLAlchemy
 from math import sin, cos, sqrt, atan2, radians
@@ -61,7 +65,7 @@ class Item(db.Model):
     Receiver = db.Column(db.Integer, nullable=True, default="NONE")
 
     def __repr__(self):
-        return f"Item('{self.Id}', '{self.Title}')"
+        return f"{self.Title},{self.Description},{self.Price}"
 
 class Message(db.Model):
     Id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -124,7 +128,7 @@ def calculateDistance(lat1, lon1, lat2, lon2):
     dlat = lat2 - lat1
     a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
     c = 2 * atan2(sqrt(a), sqrt(1-a))
-    return R * c 
+    return R * c
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -186,15 +190,13 @@ def sendRecommendationEmails(user):
     recommendations = giveRecommendations(user)
     
     email = User.query.filter_by(Username=user).first().Mail
-    title = "New product recommendations!"
-    contents = f"We created these custom product recommendations based on your preferences:<br/>"
+    title = "New product recommendations"
+    contents = f""
     for recommendation in recommendations:
-        contents += f"""<a href="http://127.0.0.1:5000/share/{recommendation.Title}">{recommendation.Title} from the {recommendation.Type.replace("-", " and ")} category<br/></a>"""
-    contents += "We hope these listings are of interest to you!"
+        contents += f"""{recommendation.Title} from the {recommendation.Type.replace("-", ", ")} category<br/>"""
+    contents += "might be of interest for you!"
     sendEmail(email, title, contents, user)
     return True
-
-sendRecommendationEmails("Stanisław")
 
 def sendOrganisationEmail(user, organisation):
     email = User.query.filter_by(Username=user).first().Mail
@@ -245,6 +247,9 @@ def searchForItem(text):
     # return Item.query.filter(and_(or_(Item.Title.contains(text), Item.Description.contains(text)), Item.Receiver=="NONE")).all()
     return Item.query.all()
 
+def searchForItemFlask(text):
+    return Item.query.filter(and_(or_(Item.Title.contains(text), Item.Description.contains(text)), Item.Receiver=="NONE")).all()
+
 def orderByPrice(x):
     return sorted(x, key=operator.attrgetter('Price'))
 
@@ -265,6 +270,13 @@ def orderByExpiryDate(x):
 def main():
     print(createAccount("howiepolska", "pomarancza1", "j.trzyq@gmail.com", "+31651444094"))
     return 0
+
+@app.route('/share', defaults={'text': ''})
+@app.route('/share/<string:text>')
+def share(text):
+    items = searchForItemFlask(text)
+    items = [str(item).split(",") for item in items]
+    return render_template("share.html", items=items, text=text)
 
 @app.route('/login', methods=['POST'])
 def login():
