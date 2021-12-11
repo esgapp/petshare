@@ -214,6 +214,19 @@ def logout():
 def register():
     pass
 
+@app.route('/register', methods=['POST'])
+def register():
+    username = request.form['username']
+    password = request.form['password']
+    mail = request.form['mail']
+    phone = request.form['phone']
+    longitude = request.form['longitude']
+    latitude = request.form['latitude']
+    if createAccount(username, password, mail, phone, longitude, latitude):
+        return {'status': 'ok'}
+    else:
+        return {'status': 'fail'} 
+
 # -------^ROUTES^-------
 
 if __name__ == '__main__':
