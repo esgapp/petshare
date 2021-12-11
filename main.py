@@ -31,8 +31,7 @@ class User(db.Model):
     def __repr__(self):
         return f"Item('{self.Id}', '{self.Username}')"
 
-TYPES = ["Cats-Food", "Cats-Toys", "Cats-Cat Trees", "Cats-Litter", "Cats-Clothes", "Cats-Beds", "Cats-Transportation", "Cats-Other", "Dogs-Food", 
-"Dogs-Toys", "Dogs-Clothes", "Dogs-Kennels", "Dogs-Transportation", "Dogs-Other", "Other", "Other-Fish", "Other-Birds", "Other-Small Mammals", "Other-Other"]
+TYPES = ["Cats-Food", "Cats-Toys", "Cats-Other", "Dogs-Food", "Dogs-Toys", "Dogs-Other", "Other-Food", "Other-Toys", "Other-Other"]
 
 class Item(db.Model):
     Id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -130,10 +129,26 @@ def getProvidedHistory(user):
 
 # Function that returns all items where a user received resources
 def getReceivedHistory(user):
-    return Item.query.filter_by(Receiver=getIdByUsername(user)).all()
+    return Item.query.order_by(Item.Id).filter_by(Receiver=user).all()
 
 def calculateUserCategories(user):
-    pass
+    items = getReceivedHistory(user)
+    multiplier = 10/float(len(items))
+    iterator = 1
+    animals = {"Cats": 0, "Dogs": 0, "Other": 0}
+    item_types = {"Toys": 0, "Food": 0, "Other": 0}
+    for item in items:
+        splititems = item.Type.split("-")
+        animal = splititems[0]
+        item_type = splititems[1]
+        if(animal in animals):
+            animals[animal] += multiplier * iterator
+        if(item_type in item_types):
+            item_types[item_type] += multiplier * iterator
+        iterator += 1
+    return sorted(animals.items(), key=lambda x:x[1], reverse=True)[0][0], sorted(item_types.items(), key=lambda x:x[1], reverse=True)[0][0]
+
+#print(calculateUserCategories("1"))
 
 # -----------------^Newsletter^-----------------------
 
@@ -142,6 +157,9 @@ def addItem(title, description, longitude, latitude, creator, itemtype="Other-Ot
     db.session.add(item)
     db.session.commit()
     return item
+
+def addPurchase(item, receiver):
+    pass
 
 def populateItems():
     item1 = Item(Title="Stanislaw Howard", Description="Stanislaw Howard mata srata", Longitude=0.67, Latitude=1.45, Date_created=datetime.datetime.now(), Type=1, Creator=1)
