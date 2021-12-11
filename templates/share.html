@@ -1,0 +1,25 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/yegor256/tacit@gh-pages/tacit-css.min.css"/>
+    </head>
+    <center>
+        <input type="text" name="search" placeholder="Search..." id="inp" value="{{ text }}">
+        <input type="submit" value="Go!" onclick="update();"><br/>
+        {% for item in items %}
+            <b>Name</b>: {{ item[0] }} | <b>Price</b>: {{ item[2] }}<br/>
+            <b>Description</b>:<br/>
+            {{ item[1] }}<br/><br/><hr/>
+        {% endfor %}
+    </center>
+
+    <script>
+        function update() {
+            if(document.getElementById("inp").value == ""){
+                window.location.href = "/share";
+            }
+            else{
+                window.location.href = "/share/"+document.getElementById("inp").value;
+            }
+        }
+    </script>
+</html>
