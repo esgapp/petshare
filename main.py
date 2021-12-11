@@ -1,5 +1,6 @@
 import json
-from flask import Flask, flash, request, jsonify, session, Response
+import os
+from flask import Flask, flash, request, jsonify, session, Response, redirect, url_for
 from sqlalchemy.sql.expression import column
 from flask_sqlalchemy import SQLAlchemy
 from math import sin, cos, sqrt, atan2, radians
@@ -11,12 +12,18 @@ from mail import *
 from animal_model import *
 from flask_cors import CORS
 import hmac
+from werkzeug.utils import secure_filename
+
+UPLOAD_FOLDER = 'uploads'
+ALLOWED_EXTENSIONS = {'jpg', 'jpeg'}
+
 
 # -----------^IMPORTS^---------------
 
 app = Flask(__name__)
 app.secret_key = 'petsharepetsharepetsharepetsharepetsharepetsharepetshare'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 CORS(app)
 
 # -------------^CONFIGS^-------------
@@ -118,6 +125,10 @@ def calculateDistance(lat1, lon1, lat2, lon2):
     a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
     c = 2 * atan2(sqrt(a), sqrt(1-a))
     return R * c 
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # -----------------^FUNCTIONS^-----------------------
 
@@ -482,6 +493,33 @@ def item_messages():
         }} for r in getItemMessages(data['item'])]
     return jsonify({'status': 'ok', 'messages': res})
 
+@app.route('/add_picture', methods=['GET', 'POST'])
+def add_picture():
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return redirect(url_for('add_picture',
+                                    filename=filename))
+    return '''
+    <!doctype html>
+    <title>Upload new File</title>
+    <h1>Upload new File</h1>
+    <form method=post enctype=multipart/form-data>
+      <input type=file name=file>
+      <input type=submit value=Upload>
+    </form>
+    '''
 # -------^ROUTES^-------
 
 if __name__ == '__main__':
