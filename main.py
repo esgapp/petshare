@@ -99,6 +99,9 @@ def getUserLocation(id):
     user = User.query.filter_by(Id=id).first()
     return user.Latitude, user.Longitude
 
+def getUsername(id):
+    user = User.query.filter_by(Id=id).first()
+    return user.Username
 
 # -----------------^LOGIN^-----------------------
 
@@ -303,7 +306,7 @@ def listing(id):
     return jsonify({
         'id': r.Id,
         'title': r.Title,
-        'creator': r.Creator,
+        'creator': getUsername(r.Creator),
         'description': r.Description,
         'price': r.Price,
         'mass': r.Mass,
@@ -371,7 +374,7 @@ def listings():
     res = [{"item" : {  
         'id': r.Id,
         'title': r.Title,
-        'creator': r.Creator,
+        'creator': getUsername(r.Creator),
         'description': r.Description,
         'price': r.Price,
         'mass': r.Mass,
@@ -385,9 +388,34 @@ def listings():
         }} for r in items]
     return jsonify({'status':'ok', 'items': res})
 
+@app.route('/listing/react', methods=["POST"])
+def react_to_listing():
+    if 'user_id' not in session:
+        return jsonify({
+            'status': 'fail',
+            'msg': 'user not logged in'
+        })
+    data = request.get_json()
+    if 'item_id' not in data:
+        return jsonify({
+            'status': 'fail',
+            'msg': 'no item'
+            })
+    
+    addPurchase(data['item_id'], session['user_id'])
+
+    item = Item.query.filter_by(Id=data['item_id']).first()
+    user = User.query.filter_by(Id=item.Creator).first()
+    user_receiver = User.query.filter_by(Id=session['user_id']).first()
+
+    sendEmail(user.Mail, 'Your item was reserved', f'Item {item.Title} was reserved by {getUsername(session["user_id"])}', user.Username)
+    sendEmail(user_receiver.Mail, 'You reserved an item', f'You reserved {item.Title} from {user.Username}', user_receiver.Username)
+
+    return jsonify({'status': 'ok'})
+
 @app.route('/send_message', methods=["POST"])
 def send_message():
-    if not session['user_id']:
+    if 'user_id' not in session:
         return jsonify({
             'status': 'fail',
             'msg': 'user not logged in'

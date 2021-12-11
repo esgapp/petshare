@@ -433,15 +433,14 @@ EMAIL_ADDRESS = config['EMAIL_ADDRESS']
 EMAIL_PASSWORD = config['EMAIL_PASSWORD']
 
 def sendEmail(email, title, contents, username):
-    global MAIL_TEMPLATE
-    MAIL_TEMPLATE = MAIL_TEMPLATE.replace("vrtkujyhiasdr4gtfigsdfulgy", username)
-    MAIL_TEMPLATE = MAIL_TEMPLATE.replace("ilothj5oyithjyjkldfshjasd", contents)
-    MAIL_TEMPLATE = MAIL_TEMPLATE.replace("jhyfgrkujghghfdsdfgdvb", "https://staszic.waw.pl/")
+    mail_content = MAIL_TEMPLATE
+    mail_content = mail_content.replace("vrtkujyhiasdr4gtfigsdfulgy", username)\
+            .replace("ilothj5oyithjyjkldfshjasd", contents).replace("jhyfgrkujghghfdsdfgdvb", "https://staszic.waw.pl/")
     s = smtplib.SMTP(host=EMAIL_HOST)
     s.starttls()
     s.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
     msg = MIMEMultipart()
-    message = MAIL_TEMPLATE
+    message = mail_content
     msg['From']=EMAIL_ADDRESS
     msg['To']=email
     msg['Subject']=title
