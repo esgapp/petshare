@@ -175,13 +175,15 @@ def sendRecommendationEmails(user):
     recommendations = giveRecommendations(user)
     
     email = User.query.filter_by(Username=user).first().Mail
-    title = "New product recommendations"
-    contents = f""
+    title = "New product recommendations!"
+    contents = f"We created these custom product recommendations based on your preferences:<br/>"
     for recommendation in recommendations:
-        contents += f"""{recommendation.Title} from the {recommendation.Type.replace("-", ", ")} category<br/>"""
-    contents += "might be of interest for you!"
+        contents += f"""<a href="http://127.0.0.1:5000/share/{recommendation.Title}">{recommendation.Title} from the {recommendation.Type.replace("-", " and ")} category<br/></a>"""
+    contents += "We hope these listings are of interest to you!"
     sendEmail(email, title, contents, user)
     return True
+
+sendRecommendationEmails("Stanisław")
 
 def sendOrganisationEmail(user, organisation):
     email = User.query.filter_by(Username=user).first().Mail
