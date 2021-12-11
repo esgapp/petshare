@@ -178,8 +178,7 @@ def sendRecommendationEmails(user):
     return True
 
 def sendOrganisationEmail(user, organisation):
-    email = "stashoward12@gmail.com"
-    #User.query.filter_by(Username=user).first().Mail
+    email = User.query.filter_by(Username=user).first().Mail
     title = "Check out this cool animal non-profit!"
     contents = """We would like to invite you to a livestream organised by """ + organisation + """. 
     We belive that the first step to decreasing the carbon footprint is to educate the society on this matter .
@@ -195,7 +194,6 @@ def sendOrganisationEmail(user, organisation):
     
     sendEmail(email, title, contents, user)
     return True
-sendOrganisationEmail("howie", "Schronisko")
 #print(sendRecommendationEmails("1"))
 
 # -----------------^Newsletter^-----------------------
