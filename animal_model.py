@@ -12,5 +12,4 @@ def classifyAnimal(image_path):
     image = cv2.resize(image, (64, 64))/ 255
     image = image.reshape(-1, 64, 64, 3)
     result = np.argmax(model(image))
-    print(animals[result])
-    print(result)
+    return animals[result]
