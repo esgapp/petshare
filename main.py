@@ -3,6 +3,7 @@ from flask import Flask, flash, render_template, redirect, request, url_for, jso
 from sqlalchemy.sql.expression import column
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Resource, Api
+from math import sin, cos, sqrt, atan2, radians
 import bcrypt
 import datetime
 
@@ -23,8 +24,8 @@ class User(db.Model):
     Mail = db.Column(db.String(100), nullable=False)
     Date_created = db.Column(db.DateTime, nullable=False)
     Phone = db.Column(db.String(20), nullable=False)
-    Longitude = db.Column(db.Float, nullable=False)
-    Latitude = db.Column(db.Float, nullable=False)
+    Latitude = db.Column(db.Float, nullable=False, default=52.219926064186325)
+    Longitude = db.Column(db.Float, nullable=False, default=21.00259908617123)
     
     def __repr__(self):
         return f"Item('{self.Id}', '{self.Username}')"
@@ -37,8 +38,8 @@ class Item(db.Model):
     Price = db.Column(db.Integer, nullable=True)
     Mass = db.Column(db.Float, nullable=True)
     Delivery_type = db.Column(db.Integer, nullable=True)
-    Longitude = db.Column(db.Float, nullable=False)
-    Latitude = db.Column(db.Float, nullable=False)
+    Latitude = db.Column(db.Float, nullable=False, default=52.219926064186325)
+    Longitude = db.Column(db.Float, nullable=False, default=21.00259908617123)
     Date_created = db.Column(db.DateTime, nullable=False)
     Type = db.Column(db.Integer, nullable=False)
     Expiry_date = db.Column(db.DateTime, nullable=True)
@@ -85,6 +86,21 @@ def createAccount(username, password, mail, phone):
 
 
 # -----------------^LOGIN^-----------------------
+
+def calculateDistance(lat1, lon1, lat2, lon2):
+    R = 6.3781 * 1e6
+    lat1 = radians(lat1)
+    lon1 = radians(lon1)
+    lat2 = radians(lat2)
+    lon2 = radians(lon2)
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1-a))
+    return R * c 
+
+# -----------------^FUNCTIONS^-----------------------
+
 
 def sendMessage(sender, receiver, message, item):
     date_created = datetime.datetime.now()
