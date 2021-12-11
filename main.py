@@ -6,6 +6,7 @@ from flask_restful import Resource, Api
 from math import sin, cos, sqrt, atan2, radians
 import bcrypt
 import datetime
+import operator
 
 # -----------^IMPORTS^---------------
 
@@ -19,7 +20,7 @@ db = SQLAlchemy(app)
 
 class User(db.Model):
     Id = db.Column(db.Integer, primary_key=True, nullable=False)
-    Username = db.Column(db.String(20), nullable=False)
+    Username = db.Column(db.String(20), nullable=False, unique=True)
     Password = db.Column(db.String(100), nullable=False)
     Mail = db.Column(db.String(100), nullable=False)
     Date_created = db.Column(db.DateTime, nullable=False)
@@ -30,18 +31,21 @@ class User(db.Model):
     def __repr__(self):
         return f"Item('{self.Id}', '{self.Username}')"
 
+TYPES = ["Cats-Food", "Cats-Toys", "Cats-Cat Trees", "Cats-Litter", "Cats-Clothes", "Cats-Beds", "Cats-Transportation", "Cats-Other", "Dogs-Food", 
+"Dogs-Toys", "Dogs-Clothes", "Dogs-Kennels", "Dogs-Transportation", "Dogs-Other", "Other", "Other-Fish", "Other-Birds", "Other-Small Mammals", "Other-Other"]
+
 class Item(db.Model):
     Id = db.Column(db.Integer, primary_key=True, nullable=False)
     Title = db.Column(db.String(50),  nullable=False)
     Creator = db.Column(db.Integer, nullable=False)
     Description = db.Column(db.String(1000), nullable=False)
-    Price = db.Column(db.Integer, nullable=True)
+    Price = db.Column(db.Integer, nullable=True, default=0)
     Mass = db.Column(db.Float, nullable=True)
     Delivery_type = db.Column(db.Integer, nullable=True)
     Latitude = db.Column(db.Float, nullable=False, default=52.219926064186325)
     Longitude = db.Column(db.Float, nullable=False, default=21.00259908617123)
     Date_created = db.Column(db.DateTime, nullable=False)
-    Type = db.Column(db.Integer, nullable=False)
+    Type = db.Column(db.String(20), nullable=False)
     Expiry_date = db.Column(db.DateTime, nullable=True)
     Receiver = db.Column(db.Integer, nullable=True)
 
@@ -57,7 +61,7 @@ class Message(db.Model):
     Item = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
-        return f"User('{self.Id}', '{self.Message}')"
+        return f"Message('{self.Id}', '{self.Message}')"
 
 db.create_all()
 db.session.commit()
@@ -67,12 +71,17 @@ db.session.commit()
 def getIdByUsername(username):
     return User.query.filter_by(Username=username).first().Id
 
+def getUsernameById(userid):
+    return User.query.filter_by(Id=userid).first().Username
+
 def hashPassword(password):
     return bcrypt.hashpw(password.encode(), bcrypt.gensalt())
 
 def verifyPassword(username, provided_password):
-    stored_password = User.query.filter_by(Username=username).first().Password
-    return bcrypt.checkpw(provided_password.encode(), stored_password)
+    stored_password = User.query.filter_by(Username=username).first()
+    if not stored_password:
+        return False
+    return bcrypt.checkpw(provided_password.encode(), stored_password.Password)
 
 def createAccount(username, password, mail, phone):
     if(username in User.query.all().Username):
@@ -123,31 +132,42 @@ def getProvidedHistory(user):
 def getReceivedHistory(user):
     return Item.query.filter_by(Receiver=getIdByUsername(user)).all()
 
+def calculateUserCategories(user):
+    pass
+
 # -----------------^Newsletter^-----------------------
 
-# def populateItems():
-#     item1 = Item(Title="Stanislaw Howard", Description="Stanislaw Howard mata srata", Longitude=0.67, Latitude=1.45, Date_created=datetime.datetime.now(), Type=1, Creator=1)
-#     db.session.add(item1)
-#     item2 = Item(Title="mata srata", Description="Stanislaw Howard", Longitude=0.67, Latitude=1.45, Date_created=datetime.datetime.now(), Type=1, Creator=1)
-#     db.session.add(item2)
-#     item3 = Item(Title="sh", Description="sh", Longitude=0.67, Latitude=1.45, Date_created=datetime.datetime.now(), Type=1, Creator=1)
-#     db.session.add(item3)
-#     db.session.commit()
+def addItem(title, description, longitude, latitude, creator, itemtype="Other-Other"):
+    item = Item(Title=title, Description=description, Longitude=longitude, Latitude=latitude, Date_created=datetime.datetime.now(), Type=itemtype, Creator=creator)
+    db.session.add(item)
+    db.session.commit()
+    return item
 
-def searchForItem(text, order="e"):
+def populateItems():
+    item1 = Item(Title="Stanislaw Howard", Description="Stanislaw Howard mata srata", Longitude=0.67, Latitude=1.45, Date_created=datetime.datetime.now(), Type=1, Creator=1)
+    db.session.add(item1)
+    item2 = Item(Title="mata srata", Description="Stanislaw Howard", Longitude=0.67, Latitude=1.45, Date_created=datetime.datetime.now(), Type=1, Creator=1)
+    db.session.add(item2)
+    item3 = Item(Title="sh", Description="sh", Longitude=0.67, Latitude=1.45, Date_created=datetime.datetime.now(), Type=1, Creator=1)
+    db.session.add(item3)
+    db.session.commit()
+
+# -----------------^Items^-----------------------
+
+def searchForItem(text):
     return list({*Item.query.filter(Item.Title.contains(text)).all(), *Item.query.filter(Item.Description.contains(text)).all()})
 
-def orderByPriceDescending():
-    return 
+def orderByPrice(x):
+    return sorted(x, key=operator.attrgetter('Price'))
 
-def orderByType():
-    pass
+def orderByType(x):
+    return sorted(x, key=operator.attrgetter('Type'))
 
-def orderByDateAdded():
-    pass
+def orderByDateAdded(x):
+    return sorted(x, key=operator.attrgetter('Date_created'))
 
-def orderByExpiryDate():
-    pass
+def orderByExpiryDate(x):
+    return sorted(x, key=operator.attrgetter('Expiry_date'))
 
 # -----------------^Item filtering^-----------------------
 
@@ -156,10 +176,43 @@ def orderByExpiryDate():
 @app.route('/')
 def main():
     #populateItems()
-    print(searchForItem("sh"))
+    print(orderByPrice(searchForItem("sh")))
     #print(createAccount("howiepolska", "pomarancza1", "j.trzyq@gmail.com", "+31651444094"))
     #print(verifyPassword("howiepolska", "pomarancza1"))
 
+@app.route('/login', methods=['POST'])
+def login():
+    username = request.form['username']
+    password = request.form['password']
+    if username and password:
+        if verifyPassword(username, password):
+            id = getIdByUsername(username)
+            session['user_id'] = id
+            return {
+                'username': username,
+                'user_id': id,
+                'status': 'ok',
+            }
+        else:
+            return {
+                'status': 'fail',
+                'msg': 'wrong password'
+            }
+    return {
+        'status': 'fail',
+        'msg': 'invalid request schema'
+    }
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.pop('user_id', None)
+    return {
+        'status': 'ok'
+    }
+
+@app.route('/register', methods=['POST'])
+def register():
+    pass
 
 # -------^ROUTES^-------
 
