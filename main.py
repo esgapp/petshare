@@ -168,7 +168,8 @@ def sendRecommendationEmails(user):
     title = "New product recommendations"
     contents = f""
     for recommendation in recommendations:
-        contents += f"""{recommendation.Title}<br/>"""
+        contents += f"""{recommendation.Title} from the {recommendation.Type.replace("-", ", ")} category<br/>"""
+    contents += "might be of interest for you!"
     sendEmail(email, title, contents, user)
     return True
 
