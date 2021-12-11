@@ -201,7 +201,7 @@ def populateItems():
 # -----------------^Items^-----------------------
 
 def searchForItem(text):
-    return Item.query.filter(and_(or_(Item.Title.contains(text), Item.Description.contains(text)), Item.Receiver!="NONE")).all()
+    return Item.query.filter(and_(or_(Item.Title.contains(text), Item.Description.contains(text)), Item.Receiver=="NONE")).all()
 
 def orderByPrice(x):
     return sorted(x, key=operator.attrgetter('Price'))
@@ -221,7 +221,7 @@ def orderByExpiryDate(x):
 
 @app.route('/')
 def main():
-    #populateItems()
+    populateItems()
     print(orderByPrice(searchForItem("sh")))
     print(createAccount("howiepolska", "pomarancza1", "j.trzyq@gmail.com", "+31651444094"))
     #print(verifyPassword("howiepolska", "pomarancza1"))
@@ -321,17 +321,41 @@ def add_listing():
 @app.route('/listings', methods=["POST"])
 def listings():
     data = request.get_json()
-    user_long = data['user_long']
-    user_lat = data['user_lat']
-    max_dist = data['max_dist']
-    sort_by = data['sort_by']
-    sort_order = data['sort_order']
-    key_word = data['key_word']
+    user_long = data['user_long'] if 'user_long' in data else None
+    user_lat = data['user_lat'] if 'user_lat' in data else None
+    max_dist = data['max_dist'] if 'max_dist' in data else None
+    sort_by = data['sort_by'] if 'sort_by' in data else None
+    sort_order = data['sort_order'] if 'sort_order' in data else None
+    key_word = data['key_word'] if 'key_word' in data else ''
     
-    items = searchForItem(key_word if key_word else "")
+    items = searchForItem(key_word)
+    print(items)
     if user_long and user_lat and max_dist:
         items = [item for item in items if calculateDistance(user_lat, user_long, item.Latitude, item.Longitude) <= max_dist]
-    sort_order = sort_order == "DESC"
+    sort_order = sort_order == "desc"
+    if sort_order == "added":
+        items = orderByDateAdded(items)
+    elif sort_order == "expiry":
+        items = orderByExpiryDate(itmes)
+    elif sort_order == "price":
+        items = orderByPrice(itmes)
+    elif sort_order == "type":
+        items = orderByType(items)
+    res = [{"item" : {  
+        'id': r.Id,
+        'title': r.Title,
+        'creator': r.Creator,
+        'description': r.Description,
+        'price': r.Price,
+        'mass': r.Mass,
+        'delivery_type': r.Delivery_type,
+        'latitude': r.Latitude,
+        'longitude': r.Longitude,
+        'date_created': r.Date_created,
+        'type': r.Type,
+        'expiry_date': r.Expiry_date,
+        }} for r in items]
+    return jsonify(res)
 
 
 # -------^ROUTES^-------
