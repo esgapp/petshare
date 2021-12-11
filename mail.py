@@ -3,7 +3,6 @@ from email.mime.text import MIMEText
 import smtplib
 import json
 
-from main import main
 
 with open("config.json") as config_file:
     config = json.load(config_file)

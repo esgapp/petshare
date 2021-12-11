@@ -8,6 +8,7 @@ import bcrypt
 import datetime
 import operator
 from sqlalchemy import and_, or_
+from mail import *
 
 # -----------^IMPORTS^---------------
 
@@ -160,9 +161,18 @@ def giveRecommendations(user):
         recommendations.extend(Item.query.filter(and_(Item.Receiver=="NONE", Item.Type==key[0])).all())
     return recommendations
     
-    
+def sendRecommendationEmails(user):
+    recommendations = giveRecommendations(user)
+    print(recommendations)
+    email = User.query.filter_by(Username=user).first().Mail
+    title = "New product recommendations"
+    contents = f""
+    for recommendation in recommendations:
+        contents += f"""{recommendation.Title}<br/>"""
+    sendEmail(email, title, contents, user)
+    return True
 
-print(giveRecommendations("1"))
+#print(sendRecommendationEmails("1"))
 
 # -----------------^Newsletter^-----------------------
 
