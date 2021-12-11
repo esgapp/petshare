@@ -224,7 +224,7 @@ def orderByExpiryDate(x):
 def main():
     #populateItems()
     print(orderByPrice(searchForItem("sh")))
-    #print(createAccount("howiepolska", "pomarancza1", "j.trzyq@gmail.com", "+31651444094"))
+    print(createAccount("howiepolska", "pomarancza1", "j.trzyq@gmail.com", "+31651444094"))
     #print(verifyPassword("howiepolska", "pomarancza1"))
     return 0
 
@@ -318,6 +318,22 @@ def add_listing():
     db.session.add(item)
     db.session.commit()
     return jsonify({'status': 'ok'})
+
+@app.route('/listings', methods=["POST"])
+def listings():
+    data = request.get_json()
+    user_long = data['user_long']
+    user_lat = data['user_lat']
+    max_dist = data['max_dist']
+    sort_by = data['sort_by']
+    sort_order = data['sort_order']
+    key_word = data['key_word']
+    
+    items = searchForItem(key_word if key_word else "")
+    if user_long and user_lat and max_dist:
+        items = [item for item in items if calculateDistance(user_lat, user_long, item.Latitude, item.Longitude) <= max_dist]
+    sort_order = sort_order == "DESC"
+
 
 # -------^ROUTES^-------
 
