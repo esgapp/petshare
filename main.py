@@ -8,6 +8,7 @@ import bcrypt
 import datetime
 import operator
 from sqlalchemy import and_, or_
+from mail import *
 
 # -----------^IMPORTS^---------------
 
@@ -134,7 +135,7 @@ def getReceivedHistory(user):
 
 def calculateUserCategories(user):
     items = getReceivedHistory(user)
-    multiplier = 10/float(len(items))
+    multiplier = 10/float(len(items)+1)
     iterator = 1
     animals = {"Cats": 0, "Dogs": 0, "Other": 0}
     item_types = {"Toys": 0, "Food": 0, "Other": 0}
@@ -147,9 +148,31 @@ def calculateUserCategories(user):
         if(item_type in item_types):
             item_types[item_type] += multiplier * iterator
         iterator += 1
-    return sorted(animals.items(), key=lambda x:x[1], reverse=True)[0][0], sorted(item_types.items(), key=lambda x:x[1], reverse=True)[0][0]
+    return animals, item_types
 
-#print(calculateUserCategories("1"))
+#### Recommendations done, do the rest tommorow
+def giveRecommendations(user):
+    recommendations = []
+    categories = calculateUserCategories(user)
+    best_categories = sorted({a+"-"+b: x+y for a,x in categories[0].items() for b,y in categories[1].items()}.items(), key=lambda x:x[1], reverse=True)
+    for key in best_categories:
+        if(len(recommendations)>=3):
+            return recommendations
+        recommendations.extend(Item.query.filter(and_(Item.Receiver=="NONE", Item.Type==key[0])).all())
+    return recommendations
+    
+def sendRecommendationEmails(user):
+    recommendations = giveRecommendations(user)
+    print(recommendations)
+    email = User.query.filter_by(Username=user).first().Mail
+    title = "New product recommendations"
+    contents = f""
+    for recommendation in recommendations:
+        contents += f"""{recommendation.Title}<br/>"""
+    sendEmail(email, title, contents, user)
+    return True
+
+#print(sendRecommendationEmails("1"))
 
 # -----------------^Newsletter^-----------------------
 
