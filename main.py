@@ -71,8 +71,10 @@ def hashPassword(password):
     return bcrypt.hashpw(password.encode(), bcrypt.gensalt())
 
 def verifyPassword(username, provided_password):
-    stored_password = User.query.filter_by(Username=username).first().Password
-    return bcrypt.checkpw(provided_password.encode(), stored_password)
+    stored_password = User.query.filter_by(Username=username).first()
+    if not stored_password:
+        return False
+    return bcrypt.checkpw(provided_password.encode(), stored_password.Password)
 
 def createAccount(username, password, mail, phone):
     if(username in User.query.all().Username):
@@ -145,6 +147,39 @@ def main():
     #print(createAccount("howiepolska", "pomarancza1", "j.trzyq@gmail.com", "+31651444094"))
     #print(verifyPassword("howiepolska", "pomarancza1"))
 
+@app.route('/login', methods=['POST'])
+def login():
+    username = request.form['username']
+    password = request.form['password']
+    if username and password:
+        if verifyPassword(username, password):
+            id = getIdByUsername(username)
+            session['user_id'] = id
+            return {
+                'username': username,
+                'user_id': id,
+                'status': 'ok',
+            }
+        else:
+            return {
+                'status': 'fail',
+                'msg': 'wrong password'
+            }
+    return {
+        'status': 'fail',
+        'msg': 'invalid request schema'
+    }
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.pop('user_id', None)
+    return {
+        'status': 'ok'
+    }
+
+@app.route('/register', methods=['POST'])
+def register():
+    pass
 
 # -------^ROUTES^-------
 
