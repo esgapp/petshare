@@ -385,6 +385,38 @@ def listings():
         }} for r in items]
     return jsonify({'status':'ok', 'items': res})
 
+@app.route('/send_message', methods=["POST"])
+def send_message():
+    if not session['user_id']:
+        return jsonify({
+            'status': 'fail',
+            'msg': 'user not logged in'
+        })
+    data = request.get_json()
+    msg = Message(
+        Sender = session['user_id'],
+        Receiver = data['receiver'] if 'receiver' in data else None,
+        Message = data['message'] if 'message' in data else None,
+        Date_created = datetime.datetime.now(),
+        Item = data['item'] if 'item' in data else None,
+    )
+    db.session.add(msg)
+    db.session.commit()
+    return jsonify({'status': 'ok'})
+
+@app.route('/item_messages', methods=["POST"])
+def item_messages():
+    data = request.get_json()
+    if 'item' not in data:
+        return jsonify({'status': 'fail'})
+    res = [{"message" : {  
+        'id': r.Id,
+        'sender': r.Sender,
+        'receiver': r.Receiver,
+        'message': r.Message,
+        'date_created': r.Date_created
+        }} for r in getItemMessages(data['item'])]
+    return jsonify(res)
 
 # -------^ROUTES^-------
 
