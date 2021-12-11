@@ -1,6 +1,6 @@
 import json
 import os
-from flask import Flask, flash, request, jsonify, session, Response, render_template
+from flask import Flask, flash, request, jsonify, session, Response, render_template, redirect, url_for
 from sqlalchemy.sql.expression import column
 from flask_sqlalchemy import SQLAlchemy
 from math import sin, cos, sqrt, atan2, radians
@@ -503,6 +503,11 @@ def item_messages():
         }} for r in getItemMessages(data['item'])]
     return jsonify({'status': 'ok', 'messages': res})
 
+@app.route('/classify')
+def classify():
+    animal = classifyAnimal("uploads/"+session["filename"])
+    return animal
+
 @app.route('/add_picture', methods=['GET', 'POST'])
 def add_picture():
     if request.method == 'POST':
@@ -519,8 +524,8 @@ def add_picture():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('add_picture',
-                                    filename=filename))
+            session["filename"] = filename
+            return redirect(url_for('classify'))
     return '''
     <!doctype html>
     <title>Upload new File</title>
