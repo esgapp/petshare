@@ -1,5 +1,5 @@
 import json
-from flask import Flask, flash, request, jsonify, session, Response
+from flask import Flask, flash, request, jsonify, session, Response, render_template
 from sqlalchemy.sql.expression import column
 from flask_sqlalchemy import SQLAlchemy
 from math import sin, cos, sqrt, atan2, radians
@@ -54,7 +54,7 @@ class Item(db.Model):
     Receiver = db.Column(db.Integer, nullable=True, default="NONE")
 
     def __repr__(self):
-        return f"Item('{self.Id}', '{self.Title}')"
+        return f"{self.Title},{self.Description},{self.Price}"
 
 class Message(db.Model):
     Id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -117,7 +117,7 @@ def calculateDistance(lat1, lon1, lat2, lon2):
     dlat = lat2 - lat1
     a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
     c = 2 * atan2(sqrt(a), sqrt(1-a))
-    return R * c 
+    return R * c
 
 # -----------------^FUNCTIONS^-----------------------
 
@@ -232,6 +232,9 @@ def searchForItem(text):
     # return Item.query.filter(and_(or_(Item.Title.contains(text), Item.Description.contains(text)), Item.Receiver=="NONE")).all()
     return Item.query.all()
 
+def searchForItemFlask(text):
+    return Item.query.filter(and_(or_(Item.Title.contains(text), Item.Description.contains(text)), Item.Receiver=="NONE")).all()
+
 def orderByPrice(x):
     return sorted(x, key=operator.attrgetter('Price'))
 
@@ -252,6 +255,13 @@ def orderByExpiryDate(x):
 def main():
     print(createAccount("howiepolska", "pomarancza1", "j.trzyq@gmail.com", "+31651444094"))
     return 0
+
+@app.route('/share', defaults={'text': ''})
+@app.route('/share/<string:text>')
+def share(text):
+    items = searchForItemFlask(text)
+    items = [str(item).split(",") for item in items]
+    return render_template("share.html", items=items, text=text)
 
 @app.route('/login', methods=['POST'])
 def login():
