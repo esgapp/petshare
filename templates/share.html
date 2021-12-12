@@ -1,25 +1,113 @@
-<html>
-    <head>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/yegor256/tacit@gh-pages/tacit-css.min.css"/>
-    </head>
-    <center>
-        <input type="text" name="search" placeholder="Search..." id="inp" value="{{ text }}">
-        <input type="submit" value="Go!" onclick="update();"><br/>
-        {% for item in items %}
-            <b>Name</b>: {{ item[0] }} | <b>Price</b>: {{ item[2] }}<br/>
-            <b>Description</b>:<br/>
-            {{ item[1] }}<br/><br/><hr/>
-        {% endfor %}
-    </center>
 
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>petsify</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='search.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Float four columns side by side */
+.column {
+  float: left;
+  width: 25%;
+  padding: 0 10px;
+}
+
+/* Remove extra left and right margins, due to padding */
+.row {margin: 0 -5px;}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Responsive columns */
+  .column {
+    min-width: 800px;
+    width: 100%;
+    display: block;
+    margin-bottom: 20px;
+  }
+
+
+/* Style the counter cards */
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  padding: 16px;
+  text-align: center;
+  background-color: #f1f1f1;
+}
+</style>
+  </head>
+  <body class="preload">
+    <div class="space"></div>
+    <h1>petsify</h1>
+    <main>
+        <input type="text" id="lat" style="display: none;">
+        <input type="text" id="long" style="display: none;">
+        <div class="searchbar">
+            <input id="search" type="text" name="search" placeholder="Search..." value="{{ text }}">
+            <input type="submit" value="Search!" onclick="update();">
+        </div>
+    <h2>Results:</h2>
+    <div id="sorting">
+    <label for="sort">Sort by:</label>
+    <select id="sort" name="sort" onchange="sortResults();">
+      <option value="0">Latest</option>
+      <option value="1">Relevance</option>
+      </select>
+      </div>
+      <section id="articles_section">
+        <div class="row">
+
+            {% for item in items %}
+            <div class="column">
+              <div class="card">
+                <h3>{{ item[0] }}</h3>
+                <p>
+                    {% if item[2] == "0" %}
+                        Free
+                    {% else %}
+                        {{ item[2] }} PLN
+                    {% endif %} | 
+                    {{ int(calculateDistance(float(latlng[0]), float(latlng[1]), float(item[3]), float(item[4]))/1000) }}km
+                </p>
+
+                <p>{{ item[1] }}</p>
+              </div>
+            </div>
+            {% endfor %}
+          
+        </div>
+        </section>
+    </main>
     <script>
+        navigator.geolocation.getCurrentPosition(getLatLon);
+        function getLatLon(position) {
+        document.getElementById("lat").value = position.coords.latitude;
+        document.getElementById("long").value = position.coords.longitude;
+        }
+
         function update() {
-            if(document.getElementById("inp").value == ""){
+            if(document.getElementById("search").value == ""){
                 window.location.href = "/share";
             }
             else{
-                window.location.href = "/share/"+document.getElementById("inp").value;
+                window.location.href = "/share/"+document.getElementById("search").value;
             }
         }
     </script>
+  </body>
 </html>

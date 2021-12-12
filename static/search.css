@@ -1,0 +1,208 @@
+.searchbar {
+    height: 60px;
+    display: grid;
+    grid-template-columns: 90fr 20fr;
+    grid-template-rows: auto;
+    gap: 0px 0px;
+    grid-template-areas:
+      ". .";
+    width: 100%;
+    margin: auto;
+    margin-top: 28px;
+  }
+  
+  .searchbar input:not([type="submit"]) {
+    border: none;
+    border-radius: 10px 0px 0px 10px;
+    background-color: #E9E9E9;
+    color: black;
+    font-size: 24px;
+    padding: 10px;
+    font-family: 'Volte Medium';
+  }
+  
+  .searchbar input[type="submit"] {
+    -webkit-appearance: none;
+    border: 0px solid black;
+    border-radius: 0px 10px 10px 0px;
+    font-size: 26px;
+    padding: 10px;
+    font-family: 'Volte Semibold';
+    background-color: #E61C52;
+    color: white;
+  }
+  
+  .searchbar input[type="submit"]:hover {
+    cursor: pointer;
+    background-color: #000000;
+  }
+  
+  #under_text{
+    font-size:27px;
+    margin:auto;
+    text-align:center;
+    font-family: 'Volte Medium';
+    margin-top:20px;
+    color:#555;
+  }
+  
+  main {
+    width: 80%;
+    margin: auto;
+    padding: 15px;
+  }
+  
+  #sorting {
+    display:none;
+    font-family: 'Volte Medium';
+    font-style: normal;
+    font-size: 27px;
+    margin-top: 8px;
+    padding: 5px;
+  }
+  
+  #sorting select {
+    padding: 5px;
+    font-size: 23px;
+  }
+  
+  #sorting option {
+    font-size: 14px;
+  }
+  
+  main>section>article {
+    margin-right: auto;
+  }
+  
+  main>section {
+    padding-top: 40px;
+  }
+  
+  article {
+    width: 750px;
+    margin-bottom: 40px;
+  }
+  
+  .article_date {
+    font-family: 'Volte Medium';
+    font-style: normal;
+    font-size: 17px;
+    color: #333333;
+  }
+  
+  .article_title {
+    font-family: 'Volte SemiBold';
+    font-style: normal;
+    font-size: 27px;
+  }
+  
+  .article_text {
+    font-family: 'Volte Regular';
+    font-style: normal;
+    font-size: 16px;
+    color:#161616;
+  }
+  
+  .article_button {
+    background-color: #E61C52;
+    color: #FFFFFF;
+    border-radius: 15px;
+    padding: 8px 12px 8px 12px;
+    display: inline-block;
+    font-size: 27px;
+    margin-top: 8px;
+  }
+  
+  .article_button:hover {
+    cursor: pointer;
+  }
+  
+  .article_title:hover {
+    color: #E61C52;
+    cursor: pointer;
+  }
+  
+  .magazine_name{
+    font-size:14px;
+    color:#5c5c5c !important;
+    font-family: 'Volte Semibold';
+  }
+  
+  .magazine_name:hover{
+    color: #E61C52 !important;
+    cursor: pointer;
+  }
+  
+  @media (min-width: 1400px) {
+    #under_text{
+      font-size:17px;
+    }
+    main>section {
+      flex-wrap: wrap;
+      display: flex;
+    }
+  
+    main>section>article {
+      width: 450px;
+    }
+  
+    h1 {
+      font-size: 57px;
+    }
+  
+    form {
+      height: 50px;
+    }
+  
+    main {
+      width: 65%;
+    }
+  
+    form input:not([type="submit"]) {
+      font-size: 21px;
+    }
+  
+    form input[type="submit"] {
+      font-size: 24px;
+    }
+  
+    h2 {
+      font-size: 43px;
+    }
+  
+    #sorting {
+      font-size: 23px;
+    }
+  
+    #sorting select {
+      font-size: 20px;
+    }
+  
+    #sorting option {
+      font-size: 15px;
+    }
+  
+    .magazine_name{
+      font-size:17px;
+    }
+  
+    .article_date{
+      font-size:19px;
+    }
+  
+    .article_button {
+      font-size: 15px;
+    }
+  }
+  
+  .splide{
+    margin:auto;
+    margin-top:40px;
+    width:70%;
+  }
+  
+  .splide__slide img {
+      width : 100%;
+      height: 100%;
+  }
+  

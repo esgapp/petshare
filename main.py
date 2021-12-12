@@ -13,6 +13,8 @@ from animal_model import *
 from flask_cors import CORS
 import hmac
 from werkzeug.utils import secure_filename
+import geocoder
+
 
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'jpg', 'jpeg'}
@@ -61,7 +63,7 @@ class Item(db.Model):
     Receiver = db.Column(db.Integer, nullable=True, default="NONE")
 
     def __repr__(self):
-        return f"{self.Title},{self.Description},{self.Price}"
+        return f"{self.Title};;;{self.Description};;;{self.Price};;;{self.Latitude};;;{self.Longitude}"
 
 class Message(db.Model):
     Id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -271,8 +273,9 @@ def main():
 @app.route('/share/<string:text>')
 def share(text):
     items = searchForItemFlask(text)
-    items = [str(item).split(",") for item in items]
-    return render_template("share.html", items=items, text=text)
+    items = [str(item).split(";;;") for item in items]
+    g = geocoder.ip('me')
+    return render_template("share.html", items=items, text=text, calculateDistance=calculateDistance, latlng=g.latlng, float=float, int=int)
 
 @app.route('/login', methods=['POST'])
 def login():

@@ -1,0 +1,70 @@
+* {
+    padding: 0;
+    margin: 0;
+    outline: 0;
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+  }
+  
+  .preload * {
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+    -ms-transition: none !important;
+    -o-transition: none !important;
+  }
+  
+  body {
+    background-color: #FFFFFF;
+    overflow-x: hidden;
+    font-family: 'Volte Regular';
+    font-weight: normal;
+    width: 100vw;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  
+  header {
+    padding: 30px;
+    margin-bottom: 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color:white;
+    width:100%;
+    transition: all .15s linear;
+  }
+  
+  header img {
+    width: 65px;
+    transition: all .15s linear;
+  }
+  
+  h1 {
+    font-family: "VolteRounded-Bold" !important;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-stroke-width: 0.2px;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+    font-size: 65px;
+  }
+  
+  h2 {
+    font-family: "VolteRounded-Bold" !important;
+    font-style: normal;
+    font-size: 50px;
+    text-align: left;
+    margin-top: 40px;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-stroke-width: 0.2px;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  .space {
+    margin-bottom: 155px;
+  }
+  
+  a {
+    text-decoration: none !important;
+    color: black;
+    display:block;
+  }
+  
